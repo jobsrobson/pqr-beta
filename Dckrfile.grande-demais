@@ -1,0 +1,28 @@
+# Argumento: backend (cpu ou gpu)
+ARG BACKEND=cpu
+
+FROM python:3.12-slim AS base
+
+# GPU precisa de outra base
+FROM nvidia/cuda:12.2.2-runtime-ubuntu22.04 AS gpu
+
+# CPU: usa a imagem slim
+FROM base AS cpu
+
+# Seleciona a partir do argumento
+FROM ${BACKEND}
+
+WORKDIR /app
+
+COPY pyproject.toml poetry.lock /app/
+
+RUN apt-get update && apt-get install -y build-essential curl git && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir poetry
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-root --no-interaction --no-ansi
+
+COPY . /app/
+
+EXPOSE 8000
+
+CMD ["poetry", "run", "python", "web/manage.py", "runserver", "0.0.0.0:8000"]

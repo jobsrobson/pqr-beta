@@ -1,0 +1,35 @@
+USANDO PYENV 3.12.6
+
+source /home/jobsr/.venv/bin/activate    
+
+poetry install
+
+poetry run python web/manage.py runserver
+
+ACESSA VIA http://127.0.0.1:8000/
+
+
+REBUILD POETRY LOCK 
+rm poetry.lock
+poetry lock
+
+REBUILD DOCS 
+cd docs
+sphinx-build -b html docs/source docs/_build/html
+cd ..
+
+
+REBUILD DOCKER
+docker build -t pergunta-que-respondo:cpu .   
+
+RODAR DOCKER
+docker run -it --rm -p 8000:8000 pergunta-que-respondo:cpu
+
+SUBIR DOCKERHUB
+docker login
+docker tag pergunta-que-respondo:cpu jobsrobson/pergunta-que-respondo:cpu
+docker push jobsrobson/pergunta-que-respondo:cpu
+
+BAIXAR DOCKERHUB
+docker pull jobsrobson/pergunta-que-respondo:cpu
+docker run -it --rm -p 8000:8000 jobsrobson/pergunta-que-respondo:cpu
